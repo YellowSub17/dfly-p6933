@@ -8,6 +8,7 @@
 # Specifically ignore the virtual environment folder
 # Do this before the "un-ignore" rules
 dfly/
+Dragonfly.bkup/
 .ipynb_checkpoints/
 __pycache__/
 
@@ -15,3 +16,6 @@ __pycache__/
 !.gitignore
 !*.py
 !*.ipynb
+!*.geom
+!*.poni
+!mask_hvoff_20250311.h5

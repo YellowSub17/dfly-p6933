@@ -33,9 +33,10 @@ def get_tphi(run, n_brightest=-1):
 
 if __name__=='__main__':
 
-    parser = argparse.ArgumentParser(description='')
+    parser = argparse.ArgumentParser(description='save_hits.py -- Convert hits from extra-data into h5 files, to be converted to emc files.\nUsage: mpirun -np 16 -- python save_hits.py --rebin 4 249')
     parser.add_argument("run_number", type=int)
     parser.add_argument("--rebin", type=int, default=1)
+    parser.add_argument("--tag", type=str, default='')
     parser.add_argument("--crop-size", type=int, nargs=2, metavar=('NY','NX'), default=[1264, 1112])
 
     args = parser.parse_args()
@@ -44,6 +45,9 @@ if __name__=='__main__':
     assert args.crop_size[1]%2==0, 'crop-size[1] needs to be even'
     assert args.crop_size[0]%2==0, 'crop-size[0] needs to be even'
     assert args.rebin in [1,2,4,8], 'rebin must be either 1,2,4,8'
+
+    if args.tag != '':
+        args.tag = '_'+args.tag
 
     xstart, xend = 1112//2 - args.crop_size[1]//2, 1112//2 + args.crop_size[1]//2
     ystart, yend = 1266//2 - args.crop_size[0]//2, 1266//2 + args.crop_size[0]//2
@@ -63,7 +67,7 @@ if __name__=='__main__':
     mpi_size = mpi_comm.Get_size()
 
     if mpi_rank==0:
-        os.makedirs(f'./hit_images/r{args.run_number:04}/', exist_ok=True)
+        os.makedirs(f'./hit_images/r{args.run_number:04}{args.tag}/', exist_ok=True)
 
 
     if mpi_rank==0:
@@ -111,7 +115,7 @@ if __name__=='__main__':
 
 
 
-        with h5py.File(f'./hit_images/r{args.run_number:04}/r{args.run_number:04}_i{int(ind):03}.h5', 'w') as f:
+        with h5py.File(f'./hit_images/r{args.run_number:04}{args.tag}/r{args.run_number:04}{args.tag}_i{int(ind):03}.h5', 'w') as f:
             f['/data'] = assem_rebin
             f['/rebin'] = args.rebin
             f['/crop-size'] = args.crop_size
