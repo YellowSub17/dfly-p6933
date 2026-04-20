@@ -1,0 +1,17 @@
+# Ignore everything
+*
+
+
+# Allow directories so Git can see inside them
+!*/
+
+# Specifically ignore the virtual environment folder
+# Do this before the "un-ignore" rules
+dfly/
+.ipynb_checkpoints/
+__pycache__/
+
+# 4. Allow the good stuff
+!.gitignore
+!*.py
+!*.ipynb
