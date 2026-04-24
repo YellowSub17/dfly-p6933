@@ -18,4 +18,5 @@ __pycache__/
 !*.ipynb
 !*.geom
 !*.poni
+!*.ini
 !mask_hvoff_20250311.h5

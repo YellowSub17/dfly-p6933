@@ -25,7 +25,6 @@ def get_tphi(run, n_brightest=-1):
     sorted_hitscore = hitscore.data[sort_indices][:n_brightest]
     sorted_pulseids = hitpulse.data[sort_indices][:n_brightest]
     sorted_trainids = trainids[sort_indices][:n_brightest]
-    
     return np.array([sorted_trainids, sorted_pulseids, sorted_hitscore, np.arange(sorted_trainids.size)]).T
 
 
@@ -81,7 +80,7 @@ if __name__=='__main__':
 
 
     worker_tphi = np.array_split(tphi, mpi_size)[mpi_rank]
-    geom_fn = "./geom/agipd_p008039_r0014_v16.geom"
+    geom_fn = "./det/agipd_p008039_r0014_v16.geom"
     ref_geom = extra_geom.AGIPD_1MGeometry.from_crystfel_geom(geom_fn)
 
 
