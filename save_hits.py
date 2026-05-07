@@ -126,7 +126,7 @@ if __name__=='__main__':
 
         ans = stack[pulse_index,:,...]
         ans = ans[0,0]
-        ans *= np.abs(mask-1)
+        # ans *= np.abs(mask-1)
 
         assem = assembleImage(ans)
         assem = assem[ystart:yend, xstart:xend]

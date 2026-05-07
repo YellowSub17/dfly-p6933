@@ -42,23 +42,21 @@ def assembleImage(not_assembled_image):
 
 def main():
 
-    parser = argparse.ArgumentParser(description='make_mask.py')
+    parser = argparse.ArgumentParser(description='overwrite_mask.py')
 
-    parser.add_argument("--part-1", type=int, default=1)
-
+    parser.add_argument("--df-tag", type=str, default='')
     parser.add_argument("--rebin", type=int, default=1)
-    parser.add_argument("--detd", type=float, default=1)
-    parser.add_argument("--lamb", type=float, default=1)
-    parser.add_argument("--tag", type=str, default='tag')
     parser.add_argument("--crop-size", type=int, nargs=2, metavar=('NY','NX'), default=[1306, 1093])
+
+
+
+    assem_center = [657.61, 538.40]
+
 
     args = parser.parse_args()
 
     assert args.rebin in [1,2,4,8], 'rebin must be either 1,2,4,8'
-    assem_center = [657.61, 538.40]
 
-    if args.tag != '':
-        args.tag = '_'+args.tag
 
     if args.crop_size==[1306, 1093]:
         xstart, xend = [0,1093]
@@ -71,7 +69,6 @@ def main():
 
 
 
-   
     MASK_FNAME = './det/mask_hvoff_20250311.h5'
 
 
@@ -79,7 +76,6 @@ def main():
     with h5py.File(MASK_FNAME, 'r') as f:
         mask = f['/entry_1/data_1/mask'][...]
 
-    #assem = np.ones( (1306, 1093) )
 
     assem = assembleImage(mask)
 
@@ -97,47 +93,7 @@ def main():
 
 
 
-    if args.part_1:
-        with open(f'./det/config_{args.tag}.ini', 'w') as f:
-            f.write('#\n')
-            f.write('[parameters]\n')
-            f.write(f'detd = {args.detd}\n')
-            f.write(f'lambda = {args.lamb}\n')
-            f.write(f'detsize = {rebin_height} {rebin_width}\n')
-            f.write(f'pixsize = 0.2\n')
-            f.write(f'stoprad = 10\n')
-            f.write(f'polarization = x\n')
-
-            f.write('\n\n')
-            f.write('[make_detector]\n')
-            f.write(f'out_detector_file = ./det_{args.tag}.h5 \n')
-
-            f.write('\n\n')
-            f.write('[emc]\n')
-            f.write(f'in_photons_file = data/photons.emc\n')
-            f.write(f'in_detector_file = make_detector:::out_detector_file\n')
-            f.write(f'num_div = 6\n')
-            f.write(f'output_folder = data/\n')
-            f.write(f'log_file = logs/EMC.log\n')
-            f.write(f'need_scaling = 1\n')
-            f.write(f'beta_factor = 1.0\n')
-            f.write(f'beta_schedule = 2.0 10\n')
-
-        print('cd det')
-        print(f'dragonfly.utils.make_detector -c ./config_{args.tag}.ini --yes')
-        print('cd ..')
-
-        p2cmd = 'python make_det.py --part-1 0'
-        p2cmd += f' --rebin {args.rebin}'
-        p2cmd += f' --crop-size {args.crop_size[0]} {args.crop_size[1]}'
-        p2cmd += f' --tag {args.tag}'
-        print(p2cmd)
-        return
-
-
-
-
-    with h5py.File(f'./det/det_{args.tag}.h5', 'a') as f:
+    with h5py.File(f'./{args.df_tag}/data/det.h5', 'a') as f:
         f['/mask'][...] = assem_rebin.flatten()
         f['/mask_square'] = assem_rebin
 

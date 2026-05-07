@@ -42,24 +42,28 @@ if __name__=='__main__':
             f.write('\n')
 
 
+    with h5py.File(f'{h5_file}', 'r') as f:
+        rebin_ds = f['/rebin']
+        rebin = rebin_ds[()]
+        crop_x = f['/crop-size'][1]
+        crop_y = f['/crop-size'][0]
+
+            
+    print(f'Created photons.txt list in {args.df_tag}/data')
     print('You need to make detector and convert h5 files')
     print()
     print(f'python Dragonfly/utils/convert/h5toemc.py -d /data -l {args.df_tag}/data/photons.txt -o {args.df_tag}/data/photons.emc -c {args.df_tag}/config.ini')
     print(f'dragonfly.utils.make_detector -c {args.df_tag}/config.ini')
-    print(f'sbatch submit_slurm.sh {args.df_tag}')
+    print(f'python make_det.py --df-tag {args.df_tag} --rebin {rebin} --crop-size {crop_y} {crop_y}')
+
+
+    # print(f'sbatch submit_slurm.sh {args.df_tag}')
 
 
 
 
 
 
-
-
-
-
-
-
-    # print(mapped_h5_files[-2:])
 
 
 
