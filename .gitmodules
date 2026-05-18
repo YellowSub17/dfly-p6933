@@ -1,3 +1,6 @@
 [submodule "Dragonfly"]
 	path = Dragonfly
 	url = https://github.com/YellowSub17/Dragonfly.git
+[submodule "libspimage"]
+	path = libspimage
+	url = git@github.com:YellowSub17/libspimage.git
