@@ -44,6 +44,7 @@ def assembleImage(not_assembled_image):
     return ret_img
 
 
+
 with h5py.File('./det/mask_hvoff_20250311.h5', 'r') as f:
     mask = f['/entry_1/data_1/mask'][:]
 
@@ -53,12 +54,10 @@ with h5py.File('./det/mask_hvoff_20250311.h5', 'r') as f:
 if __name__=='__main__':
 
     parser = argparse.ArgumentParser(description='save_hits.py -- Convert hits from extra-data into h5 files, to be converted to emc files.')
-    parser.add_argument("--run-number", type=int)
-    parser.add_argument("--tag", type=str, default='')
-    parser.add_argument("--rebin", type=int, default=1)
-    parser.add_argument("--crop-size", type=int, nargs=2, metavar=('NY','NX'), default=[1306, 1093])
-
-    ##1306->1304 (-1 top -1 bottom), 1093->1096 (+1 lhs +2 rhs)??
+    parser.add_argument("--run-number", type=int, help='Run number to process')
+    parser.add_argument("--crop-size", type=int, nargs=2, metavar=('NY','NX'), default=[1306, 1093], help='Number of pixels for (rows, columns) of the original image, maintaining center.')
+    parser.add_argument("--rebin", type=int, default=1, help='Dividing factor for pixels of the cropped image.')
+    parser.add_argument("--tag", type=str, default='auto', help='Identifying remark for processing')
 
     assem_center = [657.61, 538.40]
 
@@ -67,8 +66,7 @@ if __name__=='__main__':
 
     assert args.rebin in [1,2,4,8], 'rebin must be either 1,2,4,8'
 
-    if args.tag != '':
-        args.tag = '_'+args.tag
+
 
     if args.crop_size==[1306, 1093]:
         xstart, xend = [0,1093]
@@ -76,6 +74,17 @@ if __name__=='__main__':
     else:
         xstart, xend = round(assem_center[1] - args.crop_size[1]//2), round(assem_center[1] + args.crop_size[1]//2)
         ystart, yend = round(assem_center[0] - args.crop_size[0]//2), round(assem_center[0] + args.crop_size[0]//2)
+
+
+    
+    if args.tag =='auto':
+        if args.crop_size != [1306, 1093]:
+            args.tag = f'_cp{args.crop_size[0]}-rb{args.rebin}'
+        else:
+            args.tag = f'_rb{args.rebin}'
+    elif args.tag != '':
+        args.tag = '_'+args.tag
+    
 
     crop_center = [assem_center[0]  - ystart, assem_center[1] - xstart]
 
@@ -87,7 +96,7 @@ if __name__=='__main__':
     mpi_size = mpi_comm.Get_size()
 
     if mpi_rank==0:
-        os.makedirs(f'./hit_images/r{args.run_number:04}{args.tag}/', exist_ok=True)
+        os.makedirs(f'./hits/r{args.run_number:04}{args.tag}/', exist_ok=True)
 
     if mpi_rank==0:
         print('opening run')
@@ -137,8 +146,10 @@ if __name__=='__main__':
 
         assem_rebin = assem.reshape(rebin_height, args.rebin, rebin_width, args.rebin).sum(axis=(1,3))
 
+        
 
-        with h5py.File(f'./hit_images/r{args.run_number:04}{args.tag}/r{args.run_number:04}{args.tag}_i{int(ind):03}.h5', 'w') as f:
+
+        with h5py.File(f'./hits/r{args.run_number:04}{args.tag}/r{args.run_number:04}{args.tag}_i{int(ind):03}.h5', 'w') as f:
             f['/data'] = assem_rebin
             f['/rebin'] = args.rebin
             f['/crop-size'] = args.crop_size
@@ -146,5 +157,37 @@ if __name__=='__main__':
             f['/full-center'] = assem_center
             f['/crop-center'] = crop_center
 
-    assem_center = [657.61, 538.40]
+
+
+    if mpi_rank==0:
+        MASK_FNAME = './det/mask_hvoff_20250311.h5'
+    
+    
+        with h5py.File(MASK_FNAME, 'r') as f:
+            mask = f['/entry_1/data_1/mask'][...]
+    
+    
+        assem = assembleImage(mask)
+    
+        assem*=2
+    
+        assem = assem[ystart:yend, xstart:xend]
+    
+        assem_height, assem_width = assem.shape
+    
+        rebin_height, rebin_width  = assem_height//args.rebin, assem_width//args.rebin
+    
+        assem_rebin = assem.reshape(rebin_height, args.rebin, rebin_width, args.rebin).sum(axis=(1,3))
+
+        assem_rebin[assem_rebin>1] = 2
+    
+        with h5py.File(f'./hits/r{args.run_number:04}{args.tag}/mask_r{args.run_number:04}{args.tag}.h5', 'w') as f:
+            f['/mask'] = assem_rebin.flatten()
+            f['/mask_square'] = assem_rebin
+
+
+
+
+
+
 
