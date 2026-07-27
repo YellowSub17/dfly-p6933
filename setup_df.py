@@ -20,6 +20,7 @@ def generate_config_ini(detd=1, lamb=1.27, detsize=[512, 512]):
     
     s +=f'\n\n[make_detector]\n'
     s +=f'out_detector_file = data/det.h5\n'
+    s +=f'log_file = logs/simdata.log'
     
     s +=f'\n\n[emc]\n'
     s +=f'in_photons_file = data/photons.emc\n'
@@ -85,6 +86,9 @@ if __name__=='__main__':
         
     print(f'python Dragonfly/utils/convert/h5toemc.py -d /data -l {args.df_tag}/data/photons.txt -o {args.df_tag}/data/photons.emc -c {args.df_tag}/config.ini')
     print(f'dragonfly.utils.make_detector -c {args.df_tag}/config.ini')
+    print(f'rm ./recon.log')
+
+
     
 
     
