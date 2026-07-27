@@ -14,8 +14,6 @@ module load maxwell
 module load mpi/openmpi-x86_64
 module load cuda/12.6
 module load python/3.13
-<!--module load exfel-->
-<!--module load exfel-python-->
 ```
 
 Enter the repo, and set up the virtual environment and activate it.
@@ -60,8 +58,44 @@ python setup_df.py --df-tag test_0001 --hit-tags hits/r0306_cp256_rb1 hits/r0307
 
 Run the dragonfly reconstruction.
 ```
+sbatch slurm_dragonfly.sh test_0001
+```
+
+
+Install libspimage.
+```
+git clone https://github.com/YellowSub17/libspimage.git
+cd libspimage
+mkdir build
+cd build
+```
+
+
+
+This is the magic command to avoid ccmake menu configuration.
 
 ```
+cmake \
+  -DCMAKE_INSTALL_PREFIX=$VIRTUAL_ENV \
+  -DPython3_FIND_VIRTUALENV=FIRST \
+  -DPYTHON_EXECUTABLE="$VIRTUAL_ENV/bin/python" \
+  -DPYTHON_INCLUDE_PATH="$(python -c 'import sysconfig; print(sysconfig.get_path("include"))')" \
+  -DPYTHON_INSTDIR="$(python -c 'import sysconfig; print(sysconfig.get_path("platlib"))')" \
+  -DPython3_LIBRARY="" \
+  -DPYTHON_LIBRARIES="" \
+  -DCMAKE_SHARED_LINKER_FLAGS="-Wl,--undefined" \
+  ..
+make
+make install
+```
+
+
+
+
+
+
+
+
 
 
 
