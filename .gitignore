@@ -20,3 +20,7 @@ __pycache__/
 !*.poni
 !*.ini
 !mask_hvoff_20250311.h5
+!srcenv
+!slurm_dragonfly.sh
+!slurm_resume_dragonfly.sh
+!slurm_phase_df.sh

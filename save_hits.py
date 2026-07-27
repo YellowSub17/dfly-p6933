@@ -3,7 +3,6 @@
 from mpi4py import MPI
 import numpy as np
 import extra_data
-import extra_geom
 import h5py
 import sys
 import os

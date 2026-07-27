@@ -1,0 +1,12 @@
+
+
+source dfly/bin/activate
+
+module load mpi/openmpi-x86_64
+module load maxwell
+module load cuda
+
+
+
+
+
