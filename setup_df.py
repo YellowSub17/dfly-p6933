@@ -30,7 +30,7 @@ def generate_config_ini(detd=1, lamb=1.27, detsize=[512, 512]):
     s +=f'log_file = logs/EMC.log\n'
     s +=f'need_scaling = 1\n'
     s +=f'beta_factor = 1.0\n'
-    s +=f'beta_schedule = 2.0 10\n'
+    s +=f'beta_schedule = 1.0 10\n'
     return s
     
 
