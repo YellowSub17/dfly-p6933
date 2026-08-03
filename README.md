@@ -62,6 +62,11 @@ Run the dragonfly reconstruction.
 sbatch slurm_dragonfly.sh test_0001
 ```
 
+Continue the dragonfly reconstruction.
+```
+sbatch slurm_resume_dragonfly.sh test_0001
+```
+
 
 Install libspimage.
 ```
