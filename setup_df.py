@@ -85,7 +85,7 @@ if __name__=='__main__':
         )
         
     print(f'python Dragonfly/utils/convert/h5toemc.py -d /data -l {args.df_tag}/data/photons.txt -o {args.df_tag}/data/photons.emc -c {args.df_tag}/config.ini')
-    print(f'dragonfly.utils.make_detector -c {args.df_tag}/config.ini')
+    print(f'dragonfly.utils.make_detector -y -c {args.df_tag}/config.ini')
     print(f'rm ./recon.log')
 
 
