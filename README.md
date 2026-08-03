@@ -37,6 +37,7 @@ cd build
 cmake ..
 make
 rehash
+cd ..
 ```
 
 Create a dragonfly reconstruction folder.
