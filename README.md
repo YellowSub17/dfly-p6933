@@ -48,8 +48,8 @@ dragonfly.init -t test
 Save the hits in a dragonfly readable format.
 ```
 mkdir hits
-mpirun -np 16 -- python --run-number 306 --crop-size 256 256 --rebin 1
-mpirun -np 16 -- python --run-number 307 --crop-size 256 256 --rebin 1
+mpirun -np 16 -- python save_hits.py --run-number 306 --crop-size 256 256 --rebin 1
+mpirun -np 16 -- python save_hits.py --run-number 307 --crop-size 256 256 --rebin 1
 ```
 
 Save a config and detector file to the reconstruction folder we created.
