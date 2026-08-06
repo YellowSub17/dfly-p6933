@@ -23,7 +23,17 @@ python -m venv dfly
 source dfly/bin/activate
 pip install mpi4py
 pip install extra_data
+pip install ipympl
+pip install scikit-image
 ```
+
+If you want to install the environment for use in jupyter
+```
+pip install ipykernel
+python -m ipykernel install --user --name dfly --display-name "Python (dfly)"
+```
+
+
 
 
 
