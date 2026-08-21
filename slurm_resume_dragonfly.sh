@@ -13,6 +13,7 @@ source dfly/bin/activate
 
 cd $1
 
-mpirun -np 16 dragonfly.emc -r -t 8 -c ./config.ini 10
+mpirun -np 16 dragonfly.emc -r -t 8 -c ./config.ini $2
+
 
 
