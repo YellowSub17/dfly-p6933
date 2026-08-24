@@ -195,6 +195,7 @@ if __name__=='__main__':
 
         assem_rebin[assem_rebin>1] = 2
         
+        
     
         with h5py.File(f'./hits/r{args.run_number:04}{args.tag}/mask_r{args.run_number:04}{args.tag}.h5', 'w') as f:
             f['/mask'] = assem_rebin.flatten()
