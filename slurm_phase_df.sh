@@ -15,5 +15,5 @@ module load cuda
 
 
 
-python phase_df.py --df-tag au10nm9850kev_0002 --inten-n 30 --output-n 30 
+python phase_df.py --df-tag $1 --rec-file ./RECIPE.TXT
 

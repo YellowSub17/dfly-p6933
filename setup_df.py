@@ -25,7 +25,7 @@ def generate_config_ini(detd=1, lamb=1.27, detsize=[512, 512]):
     s +=f'\n\n[emc]\n'
     s +=f'in_photons_file = data/photons.emc\n'
     s +=f'in_detector_file = make_detector:::out_detector_file\n'
-    s +=f'num_div = 6\n'
+    s +=f'num_div = 8\n'
     s +=f'output_folder = data/\n'
     s +=f'log_file = logs/EMC.log\n'
     s +=f'need_scaling = 1\n'
@@ -73,8 +73,14 @@ if __name__=='__main__':
 
     
 
+    
+
     with h5py.File(f'{h5_file}', 'r') as f:
         data_shape = f['/data'].shape
+
+    mask_h5 = glob.glob(f'{hit_tag}/mask*.h5')[0]
+    
+    
         
 
     #shutil.copy('./config_DEFAULT.ini', f'{args.df_tag}/config.ini')
@@ -86,7 +92,12 @@ if __name__=='__main__':
         
     print(f'python Dragonfly/utils/convert/h5toemc.py -d /data -l {args.df_tag}/data/photons.txt -o {args.df_tag}/data/photons.emc -c {args.df_tag}/config.ini')
     print(f'dragonfly.utils.make_detector -y -c {args.df_tag}/config.ini')
+    print(f'python add_mask.py {args.df_tag} {mask_h5}')
     print(f'rm ./recon.log')
+
+    
+
+    
 
 
     

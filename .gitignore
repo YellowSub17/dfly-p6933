@@ -19,3 +19,7 @@ __pycache__/
 !slurm_dragonfly.sh
 !slurm_resume_dragonfly.sh
 !slurm_phase_df.sh
+!auto-make-hits.sh
+!auto-setupdf.sh
+!RECIPE.txt
+

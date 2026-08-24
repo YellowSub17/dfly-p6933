@@ -1,0 +1,19 @@
+##SUPPORT PARAMS
+radius=60
+method=area
+update_period=10
+blur_init=2.0
+blur_final=2.0
+area_init=0.25
+area_final=0.1
+center_image=True
+
+#which dragonfly recon?
+output_n=15
+
+#freq of phase output files
+inten_n=30
+
+##ITER PARAMS
+500 HIO beta_init=0.9 beta_final=0.5
+20 ER

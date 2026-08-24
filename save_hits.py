@@ -57,6 +57,8 @@ if __name__=='__main__':
     parser.add_argument("--crop-size", type=int, nargs=2, metavar=('NY','NX'), default=[1306, 1093], help='Number of pixels for (rows, columns) of the original image, maintaining center.')
     parser.add_argument("--rebin", type=int, default=1, help='Dividing factor for pixels of the cropped image.')
     parser.add_argument("--tag", type=str, default='auto', help='Identifying remark for processing')
+    #parser.add_argument("--em", type=bool, default=False, help='Extra masking pixels')
+    
 
     assem_center = [657.61, 538.40]
 
@@ -171,14 +173,16 @@ if __name__=='__main__':
         
         ##extra hot pixels (relative to cp512-rb1)
         ## within assem, that would be ystart+hp1[0] and xstart+hp1[1]
-        ystart512, xstart512 = (402, 282)
-        hp1 = (np.array([184, 185, 185, 185, 186]), np.array([282, 281, 282, 283, 282]))
-        hp2 = (np.array([342, 448, 449, 462, 463]), np.array([445, 324, 338, 286, 286]))
-        for hpy, hpx  in zip(hp1[0], hp1[1]):
-            assem[ystart512+hpy, xstart512+hpx] = 2
-        for hpy, hpx  in zip(hp2[0], hp2[1]):
-            assem[ystart512+hpy, xstart512+hpx] = 2
-        
+        #print('extra mask?', args.em)
+        ##if args.em:
+         #   ystart512, xstart512 = (402, 282)
+         #   hp1 = (np.array([184, 185, 185, 185, 186]), np.array([282, 281, 282, 283, 282]))
+         #   hp2 = (np.array([342, 448, 449, 462, 463]), np.array([445, 324, 338, 286, 286]))
+         #   for hpy, hpx  in zip(hp1[0], hp1[1]):
+         #       assem[ystart512+hpy, xstart512+hpx] = 2
+         #   for hpy, hpx  in zip(hp2[0], hp2[1]):
+         #       assem[ystart512+hpy, xstart512+hpx] = 2
+            
 
         
     
