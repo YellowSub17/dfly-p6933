@@ -36,7 +36,6 @@ python -m ipykernel install --user --name dfly --display-name "Python (dfly)"
 
 
 
-
 Install dragonfly.
 ```
 git clone https://github.com/YellowSub17/Dragonfly
@@ -64,7 +63,7 @@ mpirun -np 16 -- python save_hits.py --run-number 307 --crop-size 256 256 --rebi
 
 Save a config and detector file to the reconstruction folder we created.
 ```
-python setup_df.py --df-tag test_0001 --hit-tags hits/r0306_cp256_rb1 hits/r0307_cp256-rb1 --detd 86.9 --lamb 1.26 | bash
+python setup_df.py --df-tag test_0001 --hit-tags hits/r0306_cp256_rb1 hits/r0307_cp256-rb1 --detd 214 --lamb 1.26 | bash
 ```
 
 Run the dragonfly reconstruction.
