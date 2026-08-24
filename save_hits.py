@@ -73,6 +73,7 @@ if __name__=='__main__':
     else:
         xstart, xend = round(assem_center[1] - args.crop_size[1]//2), round(assem_center[1] + args.crop_size[1]//2)
         ystart, yend = round(assem_center[0] - args.crop_size[0]//2), round(assem_center[0] + args.crop_size[0]//2)
+        
 
 
     
@@ -167,8 +168,22 @@ if __name__=='__main__':
     
     
         assem = assembleImage(mask)
+        
+        ##extra hot pixels (relative to cp512-rb1)
+        ## within assem, that would be ystart+hp1[0] and xstart+hp1[1]
+        ystart512, xstart512 = (402, 282)
+        hp1 = (np.array([184, 185, 185, 185, 186]), np.array([282, 281, 282, 283, 282]))
+        hp2 = (np.array([342, 448, 449, 462, 463]), np.array([445, 324, 338, 286, 286]))
+        for hpy, hpx  in zip(hp1[0], hp1[1]):
+            assem[ystart512+hpy, xstart512+hpx] = 2
+        for hpy, hpx  in zip(hp2[0], hp2[1]):
+            assem[ystart512+hpy, xstart512+hpx] = 2
+        
+
+        
     
         assem*=2
+        
     
         assem = assem[ystart:yend, xstart:xend]
     
@@ -179,10 +194,13 @@ if __name__=='__main__':
         assem_rebin = assem.reshape(rebin_height, args.rebin, rebin_width, args.rebin).sum(axis=(1,3))
 
         assem_rebin[assem_rebin>1] = 2
+        
+        
     
         with h5py.File(f'./hits/r{args.run_number:04}{args.tag}/mask_r{args.run_number:04}{args.tag}.h5', 'w') as f:
             f['/mask'] = assem_rebin.flatten()
             f['/mask_square'] = assem_rebin
+            
 
 
 
