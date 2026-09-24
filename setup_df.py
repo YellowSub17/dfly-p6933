@@ -8,13 +8,13 @@ import h5py
 import argparse
 
 
-def generate_config_ini(detd=1, lamb=1.27, detsize=[512, 512]):
+def generate_config_ini(detd=1, lamb=1.27, detsize=[512, 512], rebin=1):
     s = f''
     s +=f'[parameters]\n'
     s +=f'detd = {detd}\n'
     s +=f'lambda = {lamb}\n'
     s +=f'detsize = {detsize[0]} {detsize[1]}\n'
-    s +=f'pixsize = 0.2\n'
+    s +=f'pixsize = {0.2*rebin}\n'
     s +=f'stoprad = 10\n'
     s +=f'polarization = x\n'
     
@@ -77,6 +77,7 @@ if __name__=='__main__':
 
     with h5py.File(f'{h5_file}', 'r') as f:
         data_shape = f['/data'].shape
+        rebin = f['/rebin'][...]
 
     mask_h5 = glob.glob(f'{hit_tag}/mask*.h5')[0]
     
@@ -87,7 +88,7 @@ if __name__=='__main__':
 
     with open(f'{args.df_tag}/config.ini', 'w') as f:
         f.write(
-            generate_config_ini(args.detd, args.lamb, data_shape)
+            generate_config_ini(args.detd, args.lamb, data_shape, rebin)
         )
         
     print(f'python Dragonfly/utils/convert/h5toemc.py -d /data -l {args.df_tag}/data/photons.txt -o {args.df_tag}/data/photons.emc -c {args.df_tag}/config.ini')

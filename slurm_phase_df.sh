@@ -15,5 +15,5 @@ module load cuda
 
 
 
-python phase_df.py --df-tag $1 --rec-file ./RECIPE.TXT
+python phase_df.py --df-tag $1 --rec-file ./RECIPE.txt
 

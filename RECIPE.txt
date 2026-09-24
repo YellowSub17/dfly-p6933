@@ -2,18 +2,18 @@
 radius=60
 method=area
 update_period=10
-blur_init=2.0
-blur_final=2.0
+blur_init=3
+blur_final=1.5
 area_init=0.25
 area_final=0.1
 center_image=True
 
-#which dragonfly recon?
-output_n=15
-
 #freq of phase output files
-inten_n=30
+output_n=-1
+
+#which dragonfly recon?
+inten_n=5
 
 ##ITER PARAMS
-500 HIO beta_init=0.9 beta_final=0.5
-20 ER
+10 HIO beta_init=0.9 beta_final=0.50
+10 ER

@@ -17,10 +17,9 @@ def parse_recipe(file_path="PHASE_RECIPE.txt"):
     algos = []
     niters = []
     kwargss = []
-    
     if not os.path.exists(file_path):
         raise FileNotFoundError(f"The recipe file '{file_path}' does not exist.")
-        
+
     with open(file_path, "r") as f:
         lines = f.readlines()
 
@@ -31,9 +30,8 @@ def parse_recipe(file_path="PHASE_RECIPE.txt"):
         line = line.strip()
         if not line or line.startswith("#"):
             continue
-            
+
         tokens = line.split()
-        
         # Scenario A: Global Parameter (e.g., "wavelength=1.54" or "support_type=circle")
         # Identified by lack of numeric prefix & containing an '=' sign in the first token
         if "=" in tokens[0] and not tokens[0].split("=")[0].isdigit():
@@ -100,12 +98,80 @@ def parse_recipe(file_path="PHASE_RECIPE.txt"):
     return phase_params, algos, niters, kwargss
 
 
+def make_writer(out_dir):
+    def on_output(iteration, images, scores):
+        if images is None and scores is None:
+            return
+        with h5py.File(f'{out_dir}/iter{iteration:06}.h5', 'w') as f:
+            if images is not None:
+                f['/recons']  = images["real_space"]
+                f['/fourier'] = images["fourier_space"]
+                f['/support'] = images["support"]
+                f['/mask']    = images["mask"]
+            if scores is not None:
+                f['/rerror']       = scores["real_error"]
+                f['/ferror']       = scores["fourier_error"]
+                f['/support_size'] = scores["support_size"]
+    return on_output
+
+
+def create_master_h5_vds(iters_dir, output_file='master.h5'):
+    """
+    Create a master HDF5 file with virtual datasets after reconstruction is done.
+    Call this right after R.reconstruct() completes.
+    """
+    import h5py
+    import numpy as np
+    from pathlib import Path
+    
+    iters_dir = Path(iters_dir)
+    iter_files = sorted(iters_dir.glob('iter*.h5'))
+    
+    if not iter_files:
+        print(f"Error: No iter*.h5 files found in {iters_dir}")
+        return
+    
+    n_iters = len(iter_files)
+    print(f"Creating master.h5 with {n_iters} iterations...")
+    
+    # Get dimensions from first file
+    with h5py.File(iter_files[0], 'r') as f:
+        datasets_to_link = [k for k in f.keys()]
+        shapes = {k: f[k].shape for k in datasets_to_link}
+        dtypes = {k: f[k].dtype for k in datasets_to_link}
+    
+    print(f"Datasets found: {datasets_to_link}")
+    
+    # Create master file with virtual datasets
+    with h5py.File(output_file, 'w') as master:
+        for dset_name in datasets_to_link:
+            src_shape = shapes[dset_name]
+            src_dtype = dtypes[dset_name]
+            
+            # Virtual shape: (n_iters, *src_shape)
+            virt_shape = (n_iters, *src_shape) if src_shape else (n_iters,)
+            vds = h5py.VirtualLayout(shape=virt_shape, dtype=src_dtype)
+            
+            # Map each iteration file
+            for i, iter_file in enumerate(iter_files):
+                rel_path = iter_file.relative_to(iters_dir.parent)
+                vds[i] = h5py.VirtualSource(str(rel_path), dset_name, shape=src_shape)
+            
+            master.create_virtual_dataset(dset_name, vds)
+            print(f"  {dset_name}: {virt_shape}")
+    
+    print(f"✓ Master file created: {output_file}")
+
+# After your R.reconstruct() call, add:
+# R.reconstruct(on_output=make_writer(f'{PHASE_DIR}/iters'))
+# create_master_h5_vds(f'{PHASE_DIR}/iters')
+
+
 if __name__=='__main__':
 
     parser = argparse.ArgumentParser(description='phase_recon.py -- Take a dragonfly recon and phase it.')
     parser.add_argument("--df-tag", type=str, default='')
-    parser.add_argument("--rec-file", type=str, default='./PHASE_RECIPE.txt')
-    #parser.add_argument("--output-n", type=int, default=10)
+    parser.add_argument("--rec-file", type=str, default='./RECIPE.txt')
     
     
     
@@ -117,6 +183,7 @@ if __name__=='__main__':
 
     PHASE_DIR = f'./{args.df_tag}/phase_{count:04}/'
     os.makedirs(PHASE_DIR, exist_ok=True)
+    os.makedirs(f'{PHASE_DIR}/iters', exist_ok=True)
     shutil.copy(args.rec_file, f'{PHASE_DIR}/{args.df_tag}_phase_{count:04}_recipe.txt')
     
     phase_params, algos, n_iters, kwargss = parse_recipe(f'{PHASE_DIR}/{args.df_tag}_phase_{count:04}_recipe.txt')
@@ -164,7 +231,6 @@ if __name__=='__main__':
     R.set_number_of_outputs_images(output_n)
     R.set_number_of_outputs_scores(output_n)
     R.set_initial_support(radius=phase_params['radius'])
-    
     #R.set_support_algorithm("static", number_of_iterations=sum(n_iters))
     if phase_params['method']=='area':
         R.set_support_algorithm('area', update_period=int(phase_params['update_period']), 
@@ -173,30 +239,60 @@ if __name__=='__main__':
                             center_image=bool(phase_params['center_image']))
     else:
         R.set_support_algorithm("static", number_of_iterations=sum(n_iters))
-        
     for algo, n_iter, kwargs in zip(algos, n_iters, kwargss):
         R.append_phasing_algorithm(algo, number_of_iterations=n_iter, **kwargs)
-        
+
+    t1 = time.time()
+
 
     print('Starting reconstruction.')
-    output=R.reconstruct()
+    R.reconstruct(on_output=make_writer(f'{PHASE_DIR}/iters'))
     
-    print(output.keys())
-    for key in output.keys():
-        print(key, type(output[key]))
-        
+    create_master_h5_vds( f'{PHASE_DIR}/iters', output_file = f'{PHASE_DIR}/master.h5')
+
+
+
+
+
+
+    # with h5py.File(f'{PHASE_DIR}/phase_master.h5','w') as f:
+
+
+
+    # output=R.reconstruct(on_output=make_writer(f'{PHASE_DIR}/iters'))
+
+    # print(output.keys())
+    # for key in output.keys():
+        # print(key, type(output[key]))
+
+
+    # t2 = time.time()
+
+    # recon_time = (t2-t1)/60
+
     
-    # Collect results
+    # with h5py.File(f'{PHASE_DIR}/results.h5', 'w') as f:
+        # f['/recons'] = output['real_space']
+        # f['/fourier']= output['fourier_space']
+        # f['/support']= output['support']
+        # f['/rerror'] = output["real_error"]
+        # f['/ferror'] = output["fourier_error"]
+        # f['/iter_images'] = output["iteration_index_images"]
+        # f['/iter_scores'] = output["iteration_index_scores"]
+        # f['/mask'] = output["mask"]
+        # f['/support_size'] = output["support_size"]
+        # f['/recon_time'] = recon_time
     
-    with h5py.File(f'{PHASE_DIR}/results.h5', 'w') as f:
-        f['/recons'] = output['real_space']
-        f['/fourier']= output['fourier_space']
-        f['/support']= output['support']
-        f['/rerror'] = output["real_error"]
-        f['/ferror'] = output["fourier_error"]
-        f['/iter_images'] = output["iteration_index_images"]
-        f['/iter_scores'] = output["iteration_index_scores"]
-        f['/mask'] = output["mask"]
-        f['/support_size'] = output["support_size"]
     
-    
+            # if images is not None:
+                # f['/recons']  = images["real_space"]
+                # f['/fourier'] = images["fourier_space"]
+                # f['/support'] = images["support"]
+                # f['/mask']    = images["mask"]
+            # if scores is not None:
+                # f['/rerror']       = scores["real_error"]
+                # f['/ferror']       = scores["fourier_error"]
+
+                # f['/support_size'] = scores["support_size"]
+    # return on_output
+
