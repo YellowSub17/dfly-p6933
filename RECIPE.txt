@@ -15,5 +15,4 @@ output_n=-1
 inten_n=5
 
 ##ITER PARAMS
-10 HIO beta_init=0.9 beta_final=0.50
-10 ER
+20 ER

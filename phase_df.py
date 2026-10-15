@@ -107,7 +107,6 @@ def make_writer(out_dir):
                 f['/recons']  = images["real_space"]
                 f['/fourier'] = images["fourier_space"]
                 f['/support'] = images["support"]
-                f['/mask']    = images["mask"]
             if scores is not None:
                 f['/rerror']       = scores["real_error"]
                 f['/ferror']       = scores["fourier_error"]
@@ -243,7 +242,6 @@ if __name__=='__main__':
         R.append_phasing_algorithm(algo, number_of_iterations=n_iter, **kwargs)
 
     t1 = time.time()
-
 
     print('Starting reconstruction.')
     R.reconstruct(on_output=make_writer(f'{PHASE_DIR}/iters'))
